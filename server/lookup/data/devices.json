@@ -1,0 +1,12 @@
+[
+  {
+    "deviceId": "DEV001",
+    "stationId": "ST001",
+    "block": "A"
+  },
+  {
+    "deviceId": "DEV002",
+    "stationId": "ST001",
+    "block": "B"
+  }
+]
