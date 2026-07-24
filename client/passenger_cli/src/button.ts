@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as readline from "node:readline";
+import payload from "./payload.js";
 
 export async function requestButton() {
     const rl = readline.createInterface({
@@ -10,10 +11,7 @@ export async function requestButton() {
     rl.question("Press Enter to request assistance...", async () => {
         try {
             const res = await axios.post(
-                "http://localhost:3000/emergency",
-                {
-                    deviceId: "DEV001",
-                }
+                "http://localhost:3000/emergency", payload
             );
 
             console.log(res.data);

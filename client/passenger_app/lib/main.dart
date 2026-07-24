@@ -43,7 +43,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     text: 'http://localhost:3000/emergency',
   );
   final TextEditingController _deviceController = TextEditingController(
-    text: 'DEV001',g
+    text: 'DEV001',
   );
 
   Future<void> _sendEmergencyAlert() async {

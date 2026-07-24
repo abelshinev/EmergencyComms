@@ -12,5 +12,19 @@
     "agentId": "AG002",
     "agentName": "Sarah",
     "agentEmail": "sarah@railway.com"
+  },
+  {
+    "stationId": "ST001",
+    "block": "C",
+    "agentId": "AG001",
+    "agentName": "John",
+    "agentEmail": "john@railway.com"
+  },
+    {
+    "stationId": "ST002",
+    "block": "A",
+    "agentId": "AG003",
+    "agentName": "Max",
+    "agentEmail": "max@railway.com"
   }
 ]

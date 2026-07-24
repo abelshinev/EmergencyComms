@@ -8,5 +8,15 @@
     "deviceId": "DEV002",
     "stationId": "ST001",
     "block": "B"
+  },
+  {
+    "deviceId": "DEV003",
+    "stationId": "ST001",
+    "block": "C"
+  },
+  {
+    "deviceId": "DEV004",
+    "stationId": "ST002",
+    "block": "A"
   }
 ]
