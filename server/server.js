@@ -7,9 +7,6 @@ const lookupService = require('./lookup/services/lookup.service');
 const emergencyRoutes = require('./lookup/routes/emergency.routes');
 const initSocket = require('./signaling/socket');
 
-// CHANGE THIS LINE
-const { sendEmergencyNotification } = require('./notifications/fcm.service');
-
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
@@ -34,12 +31,12 @@ app.use('/', emergencyRoutes);
 
 // Global 404 handler
 app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Route not found' });
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
 });
 
 server.listen(PORT, () => {
   logger.info(`Server listening on port ${PORT}`);
-
-  // TEMPORARY TEST
-  sendEmergencyNotification("AG001", "DEV001");
 });

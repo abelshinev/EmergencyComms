@@ -1,5 +1,6 @@
 const presenceManager = require('../presence/presence.manager');
 const logger = require('../../config/logger');
+const { sendEmergencyNotification } = require('../../notifications/fcm.service');
 
 function registerSignalingHandlers(io, socket) {
   logger.info(`Socket connected -> ${socket.id}`);
@@ -7,28 +8,48 @@ function registerSignalingHandlers(io, socket) {
   // Agent registers presence
   socket.on('agent:register', (data) => {
     const { agentId } = data || {};
+
     if (!agentId) {
       logger.warn(`[Socket ${socket.id}] agent:register missing agentId`);
-      return socket.emit('error', { message: 'agentId is required for registration' });
+      return socket.emit('error', {
+        message: 'agentId is required for registration'
+      });
     }
 
     presenceManager.registerAgent(agentId, socket.id);
-    socket.emit('agent:registered', { success: true, agentId, socketId: socket.id });
+
+    socket.emit('agent:registered', {
+      success: true,
+      agentId,
+      socketId: socket.id
+    });
   });
 
-  // Passenger initiates emergency alert towards an resolved agent
-  socket.on('call:initiate', (data) => {
+  // Passenger initiates emergency alert towards a resolved agent
+  socket.on('call:initiate', async (data) => {
     const { targetAgentId, deviceId } = data || {};
-    logger.info(`[Socket ${socket.id}] call:initiate towards ${targetAgentId} (device: ${deviceId})`);
+
+    logger.info(
+      `[Socket ${socket.id}] call:initiate towards ${targetAgentId} (device: ${deviceId})`
+    );
 
     if (!targetAgentId) {
-      return socket.emit('call:rejected', { reason: 'targetAgentId is required' });
+      return socket.emit('call:rejected', {
+        reason: 'targetAgentId is required'
+      });
     }
 
     const agentSocketId = presenceManager.getAgentSocketId(targetAgentId);
 
+    // Agent is offline
     if (!agentSocketId) {
-      logger.warn(`[Socket ${socket.id}] Target agent ${targetAgentId} is OFFLINE`);
+      logger.warn(
+        `[Socket ${socket.id}] Target agent ${targetAgentId} is OFFLINE`
+      );
+
+      // Send Firebase push notification
+      await sendEmergencyNotification(targetAgentId, deviceId);
+
       return socket.emit('call:rejected', {
         success: false,
         reason: 'Agent offline',
@@ -36,7 +57,9 @@ function registerSignalingHandlers(io, socket) {
       });
     }
 
-    logger.info(`Relaying call:incoming to Agent ${targetAgentId} (socket: ${agentSocketId})`);
+    logger.info(
+      `Relaying call:incoming to Agent ${targetAgentId} (socket: ${agentSocketId})`
+    );
 
     // Relay event to target agent socket
     io.to(agentSocketId).emit('call:incoming', {
@@ -46,7 +69,7 @@ function registerSignalingHandlers(io, socket) {
       timestamp: new Date().toISOString()
     });
 
-    // Acknowledge passenger that alert was delivered to agent
+    // Acknowledge passenger that alert was delivered
     socket.emit('call:alerting', {
       success: true,
       targetAgentId,
@@ -57,8 +80,11 @@ function registerSignalingHandlers(io, socket) {
   // Handle client disconnect
   socket.on('disconnect', (reason) => {
     const agentId = presenceManager.removeBySocketId(socket.id);
+
     if (!agentId) {
-      logger.info(`Socket disconnected -> ${socket.id} (reason: ${reason})`);
+      logger.info(
+        `Socket disconnected -> ${socket.id} (reason: ${reason})`
+      );
     }
   });
 }
