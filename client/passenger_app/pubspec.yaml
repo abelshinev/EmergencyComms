@@ -1,5 +1,5 @@
-name: passenger_app
-description: Emergency Comms Passenger App
+name: agent_app
+description: Emergency Comms Agent App
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -9,7 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.1.0
+
+  firebase_core: ^3.15.2
+  firebase_messaging: ^15.2.10
 
 dev_dependencies:
   flutter_test:
