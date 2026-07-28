@@ -1,3 +1,4 @@
 node_modules/
-serviceAccountKey.json
+serviceAccountKey*
 .env
+/lookup/data/agentTokens.json
