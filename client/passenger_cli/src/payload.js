@@ -1,5 +1,5 @@
 const payload = {
-    deviceId: "DEV003" 
+    deviceId: "DEV003"
 }
 
 export default payload;

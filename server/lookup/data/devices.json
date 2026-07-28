@@ -9,14 +9,19 @@
     "stationId": "ST001",
     "block": "B"
   },
-  {
-    "deviceId": "DEV003",
-    "stationId": "ST001",
-    "block": "C"
+  {"deviceId": "DEV005",
+    "stationId": "ST002",
+    "block": "B"
+    
   },
   {
     "deviceId": "DEV004",
     "stationId": "ST002",
     "block": "A"
+  },
+  {
+    "deviceId": "DEV003",
+    "stationId": "ST001",
+    "block": "C"
   }
 ]
