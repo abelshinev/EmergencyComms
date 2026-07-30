@@ -5,6 +5,7 @@ const cors = require('cors');
 const logger = require('./config/logger');
 const lookupService = require('./lookup/services/lookup.service');
 const emergencyRoutes = require('./lookup/routes/emergency.routes');
+const registrationRoutes = require('./registration/routes/registration.routes');
 const initSocket = require('./signaling/socket');
 
 const app = express();
@@ -28,6 +29,7 @@ app.get('/health', (req, res) => {
 
 // Emergency Lookup Endpoint
 app.use('/', emergencyRoutes);
+app.use('/', registrationRoutes);
 
 // Global 404 handler
 app.use((req, res) => {
