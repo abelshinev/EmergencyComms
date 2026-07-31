@@ -5,13 +5,20 @@ function register(agentId, fcmToken) {
     fcmToken,
     lastSeen: Date.now(),
   });
+  console.log("[REGISTER] Registry:");
+  console.log(Array.from(registeredAgents.entries()));
 }
 
 function get(agentId) {
   return registeredAgents.get(agentId);
 }
 
+function getToken(agentId) {
+  return registeredAgents.get(agentId)?.fcmToken ?? null;
+}
+
 module.exports = {
   register,
   get,
+  getToken,
 };
