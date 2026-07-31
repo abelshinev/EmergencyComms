@@ -20,7 +20,7 @@ async function sendEmergencyNotification(agentId, deviceId) {
   }
 
   const message = {
-    token: agent.fcmToken,
+    token,
     notification: {
       title: 'Emergency Alert',
       body: `Emergency call received from device ${deviceId}`,
