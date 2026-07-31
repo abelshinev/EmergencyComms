@@ -1,59 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  debugPrint("Background notification: ${message.notification?.title}");
-}
+import 'firebase_options.dart';
+import 'app/app.dart';
+import 'services/notification_service.dart';
+import 'services/api_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
 
-  FirebaseMessaging.onBackgroundMessage(
-      _firebaseMessagingBackgroundHandler);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-  NotificationSettings settings =
-      await FirebaseMessaging.instance.requestPermission();
+  final notificationService = NotificationService();
+  final fcmToken = await notificationService.initialize();
 
-  debugPrint("Permission: ${settings.authorizationStatus}");
+  if (fcmToken != null) {
+    final api = ApiService();
 
-  String? token = await FirebaseMessaging.instance.getToken();
-  debugPrint("AGENT FCM TOKEN: $token");
-
-  runApp(const AgentApp());
-}
-
-class AgentApp extends StatelessWidget {
-  const AgentApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      debugPrint(
-          "Foreground notification: ${message.notification?.title}");
-      debugPrint("${message.notification?.body}");
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      debugPrint("Notification tapped");
-    });
-
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Agent App',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Agent App"),
-        ),
-        body: const Center(
-          child: Text(
-            "Waiting for emergency notifications...",
-            style: TextStyle(fontSize: 18),
-          ),
-        ),
-      ),
+    await api.registerAgent(
+      agentId: 'AG001',
+      fcmToken: fcmToken
     );
   }
+
+  print("Main received token: $fcmToken");
+
+  runApp(const StationAlertsApp());
 }

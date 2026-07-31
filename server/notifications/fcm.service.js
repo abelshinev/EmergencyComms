@@ -2,7 +2,7 @@ const { initializeApp, cert } = require('firebase-admin/app');
 const { getMessaging } = require('firebase-admin/messaging');
 
 const serviceAccount = require('../serviceAccountKey.json');
-const agentTokens = require('../lookup/data/agentTokens.json');
+const registrationService = require('../registration/services/registration.service');
 
 initializeApp({
   credential: cert(serviceAccount),
@@ -12,15 +12,15 @@ console.log('[FCM] Firebase Admin initialized');
 
 async function sendEmergencyNotification(agentId, deviceId) {
   // Find the agent's FCM token
-  const agent = agentTokens.find(a => a.agentId === agentId);
+  const token = registrationService.getToken(agentId);
 
-  if (!agent) {
-    console.log(`[FCM] No token found for agent ${agentId}`);
+  if (!token) {
+    console.log(`[FCM] No registered token for ${agentId}`);
     return;
   }
 
   const message = {
-    token: agent.fcmToken,
+    token,
     notification: {
       title: 'Emergency Alert',
       body: `Emergency call received from device ${deviceId}`,
