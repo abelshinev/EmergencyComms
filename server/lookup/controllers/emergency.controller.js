@@ -1,8 +1,10 @@
-const lookupService = require('../services/lookup.service');
 const logger = require('../../config/logger');
 const { ERRORS } = require('../../config/constants');
 
-exports.handleEmergency = (req, res) => {
+const lookupService = require('../services/lookup.service');
+const { sendEmergencyNotification } = require('../../notifications/fcm.service');
+
+exports.handleEmergency = async (req, res) => {
   logger.info('POST /emergency received');
 
   const { deviceId } = req.body || {};
@@ -31,6 +33,13 @@ exports.handleEmergency = (req, res) => {
   logger.info(`Device resolved → ${resolved.stationId} / Block ${resolved.block}`);
   if (resolved.agent) {
     logger.info(`Agent resolved → ${resolved.agent.agentId}`);
+    await sendEmergencyNotification(
+      resolved.agent.agentId,
+      resolved.deviceId
+    ).catch(err => {
+      logger.error(`FCM notification failed: ${err.message}`);
+    });
+
   } else {
     logger.warn(`No agent assigned to ${resolved.stationId} / Block ${resolved.block}`);
   }

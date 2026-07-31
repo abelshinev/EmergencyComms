@@ -16,6 +16,21 @@ class NotificationService {
     print(token);
     print('========================================');
 
+    // App is OPEN
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('========== FOREGROUND MESSAGE ==========');
+      print('Title: ${message.notification?.title}');
+      print('Body : ${message.notification?.body}');
+      print('Data : ${message.data}');
+      print('========================================');
+    });
+
+    // User taps notification
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('Notification opened!');
+      print(message.data);
+    });
+
     return token;
   }
 }
