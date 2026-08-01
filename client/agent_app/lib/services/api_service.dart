@@ -4,8 +4,8 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // TODO: Replace with your PC's LAN IP when testing on a real device.
-  static const String baseUrl = 'http://10.0.2.2:3000';
-
+  static const String baseUrl = 'http://192.168.0.170:3000';
+  
   Future<void> registerAgent({
     required String agentId,
     required String fcmToken,

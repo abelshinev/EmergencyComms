@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../screens/home_screen.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class StationAlertsApp extends StatelessWidget {
   const StationAlertsApp({super.key});
 
@@ -15,6 +17,7 @@ class StationAlertsApp extends StatelessWidget {
           seedColor: Colors.blue,
         ),
       ),
+      navigatorKey: navigatorKey,
       home: const HomeScreen(),
     );
   }

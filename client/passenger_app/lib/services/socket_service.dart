@@ -1,8 +1,5 @@
-import 'package:agent_app/screens/incoming_call_dialog.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:agent_app/app/app.dart';
+import 'dart:async';
 
 class SocketService {
   static final SocketService _instance = SocketService._internal();
@@ -13,43 +10,52 @@ class SocketService {
 
   IO.Socket? socket;
 
-  void connect(String agentId) {
+  void initiateCall({required String agentId, required String deviceId}) {
+    
+      socket?.emit('call:initiate', {
+        'targetAgentId': agentId,
+        'deviceId': deviceId,
+      });
+
+  }
+
+  Future<void> connect() async {
     if (socket != null && socket!.connected) {
       return;
     }
 
+    final completer = Completer<void>();
+
     socket = IO.io(
-        'http://192.168.0.170:3000',
-        IO.OptionBuilder()
+      'http://10.0.2.2:3000',
+      IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
           .build(),
     );
 
-    socket!.connect();
-
     socket!.onConnect((_) {
       print('✅ Socket connected');
 
-      socket!.emit('agent:register', {
-        'agentId': agentId,
-      });
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
     });
 
-    socket!.on('agent:registered', (data) {
-      print('✅ Agent registered: $data');
+    socket!.onDisconnect((_) {
+      print('❌ Socket disconnected');
     });
 
-    socket!.on('call:incoming', (data) {
-      print('📞 Incoming call: $data');
-      showDialog(
-          context: navigatorKey.currentContext!,
-          builder: (_) => IncomingCallDialog(call: data)
-      );
+    socket!.onError((error) {
+      print('Socket error: $error');
     });
 
     socket!.on('call:accepted', (data) {
       print('✅ Call accepted: $data');
+    });
+
+    socket!.on('call:alerting', (data) {
+      print('🔔 Alert delivered: $data');
     });
 
     socket!.on('call:rejected', (data) {
@@ -72,13 +78,9 @@ class SocketService {
       print('☎️ Call ended');
     });
 
-    socket!.onDisconnect((_) {
-      print('❌ Socket disconnected');
-    });
+    socket!.connect();
 
-    socket!.onError((error) {
-      print('Socket error: $error');
-    });
+    return completer.future;
   }
 
   void disconnect() {
