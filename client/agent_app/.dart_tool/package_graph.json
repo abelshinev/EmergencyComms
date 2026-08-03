@@ -13,6 +13,7 @@
         "flutter",
         "flutter_webrtc",
         "http",
+        "permission_handler",
         "socket_io_client"
       ],
       "devDependencies": [
@@ -46,6 +47,19 @@
       ]
     },
     {
+      "name": "permission_handler",
+      "version": "12.0.3",
+      "dependencies": [
+        "flutter",
+        "meta",
+        "permission_handler_android",
+        "permission_handler_apple",
+        "permission_handler_html",
+        "permission_handler_platform_interface",
+        "permission_handler_windows"
+      ]
+    },
+    {
       "name": "socket_io_client",
       "version": "3.1.6",
       "dependencies": [
@@ -57,7 +71,7 @@
     },
     {
       "name": "flutter_webrtc",
-      "version": "1.5.2",
+      "version": "1.6.0",
       "dependencies": [
         "collection",
         "dart_webrtc",
@@ -204,6 +218,56 @@
         "stream_channel",
         "string_scanner",
         "term_glyph"
+      ]
+    },
+    {
+      "name": "permission_handler_platform_interface",
+      "version": "4.4.0",
+      "dependencies": [
+        "flutter",
+        "meta",
+        "plugin_platform_interface"
+      ]
+    },
+    {
+      "name": "permission_handler_windows",
+      "version": "0.2.2",
+      "dependencies": [
+        "flutter",
+        "permission_handler_platform_interface"
+      ]
+    },
+    {
+      "name": "permission_handler_html",
+      "version": "0.1.4+1",
+      "dependencies": [
+        "flutter",
+        "flutter_web_plugins",
+        "permission_handler_platform_interface",
+        "web"
+      ]
+    },
+    {
+      "name": "permission_handler_apple",
+      "version": "9.5.0",
+      "dependencies": [
+        "flutter",
+        "permission_handler_platform_interface"
+      ]
+    },
+    {
+      "name": "permission_handler_android",
+      "version": "13.0.1",
+      "dependencies": [
+        "flutter",
+        "permission_handler_platform_interface"
+      ]
+    },
+    {
+      "name": "web_socket",
+      "version": "1.0.1",
+      "dependencies": [
+        "web"
       ]
     },
     {
@@ -393,6 +457,20 @@
       ]
     },
     {
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
+      "name": "flutter_web_plugins",
+      "version": "0.0.0",
+      "dependencies": [
+        "flutter"
+      ]
+    },
+    {
       "name": "path_provider_windows",
       "version": "2.3.0",
       "dependencies": [
@@ -460,13 +538,6 @@
       ]
     },
     {
-      "name": "flutter_web_plugins",
-      "version": "0.0.0",
-      "dependencies": [
-        "flutter"
-      ]
-    },
-    {
       "name": "_flutterfire_internals",
       "version": "1.3.75",
       "dependencies": [
@@ -474,13 +545,6 @@
         "firebase_core",
         "firebase_core_platform_interface",
         "flutter",
-        "meta"
-      ]
-    },
-    {
-      "name": "plugin_platform_interface",
-      "version": "2.1.8",
-      "dependencies": [
         "meta"
       ]
     },
@@ -612,13 +676,6 @@
       "version": "3.0.7",
       "dependencies": [
         "typed_data"
-      ]
-    },
-    {
-      "name": "web_socket",
-      "version": "1.0.1",
-      "dependencies": [
-        "web"
       ]
     }
   ],

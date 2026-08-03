@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:agent_app/services/socket_service.dart';
 
 class IncomingCallDialog extends StatelessWidget {
   final Map<String, dynamic> call;
@@ -27,6 +28,7 @@ class IncomingCallDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () {
+            SocketService().rejectCurrentCall();
             Navigator.pop(context);
           },
           child: const Text("Reject"),
@@ -34,6 +36,7 @@ class IncomingCallDialog extends StatelessWidget {
 
         ElevatedButton(
           onPressed: () {
+            SocketService().acceptCurrentCall();
             Navigator.pop(context);
           },
           child: const Text("Accept"),

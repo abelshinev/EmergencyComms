@@ -1,5 +1,9 @@
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:async';
+
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+
+import 'webrtc_service.dart';
 
 class SocketService {
   static final SocketService _instance = SocketService._internal();
@@ -10,19 +14,22 @@ class SocketService {
 
   IO.Socket? socket;
 
-  void initiateCall({required String agentId, required String deviceId}) {
-    
-      socket?.emit('call:initiate', {
-        'targetAgentId': agentId,
-        'deviceId': deviceId,
-      });
+  final WebRTCService _webrtc = WebRTCService();
 
+  String? _currentCallId;
+
+  void initiateCall({
+    required String agentId,
+    required String deviceId,
+  }) {
+    socket?.emit('call:initiate', {
+      'targetAgentId': agentId,
+      'deviceId': deviceId,
+    });
   }
 
   Future<void> connect() async {
-    if (socket != null && socket!.connected) {
-      return;
-    }
+    if (socket != null && socket!.connected) return;
 
     final completer = Completer<void>();
 
@@ -36,46 +43,73 @@ class SocketService {
 
     socket!.onConnect((_) {
       print('✅ Socket connected');
-
-      if (!completer.isCompleted) {
-        completer.complete();
-      }
+      if (!completer.isCompleted) completer.complete();
     });
 
     socket!.onDisconnect((_) {
       print('❌ Socket disconnected');
     });
 
-    socket!.onError((error) {
-      print('Socket error: $error');
-    });
-
-    socket!.on('call:accepted', (data) {
-      print('✅ Call accepted: $data');
+    socket!.onError((err) {
+      print('Socket error: $err');
     });
 
     socket!.on('call:alerting', (data) {
-      print('🔔 Alert delivered: $data');
+      print('🔔 Alert delivered');
+      _currentCallId = data['callId'];
     });
 
-    socket!.on('call:rejected', (data) {
-      print('❌ Call rejected: $data');
+    socket!.on('call:accepted', (data) async {
+      print('✅ Call accepted');
+
+      _currentCallId = data['callId'];
+
+      await _webrtc.initialize();
+
+      _webrtc.onIceCandidate((candidate) {
+        socket?.emit('webrtc:ice-candidate', {
+          'callId': _currentCallId,
+          'candidate': candidate.candidate,
+          'sdpMid': candidate.sdpMid,
+          'sdpMLineIndex': candidate.sdpMLineIndex,
+        });
+      });
+
+      final offer = await _webrtc.createOffer();
+
+      socket?.emit('webrtc:offer', {
+        'callId': _currentCallId,
+        'sdp': offer.sdp,
+        'type': offer.type,
+      });
+
+      print('📡 Offer sent');
     });
 
-    socket!.on('webrtc:offer', (data) {
-      print('📡 WebRTC Offer received');
+    socket!.on('webrtc:answer', (data) async {
+      print('📡 Answer received');
+
+      await _webrtc.setRemoteDescription(
+        RTCSessionDescription(
+          data['sdp'],
+          data['type'],
+        ),
+      );
     });
 
-    socket!.on('webrtc:answer', (data) {
-      print('📡 WebRTC Answer received');
+    socket!.on('webrtc:ice-candidate', (data) async {
+      final candidate = RTCIceCandidate(
+        data['candidate'],
+        data['sdpMid'],
+        data['sdpMLineIndex'],
+      );
+
+      await _webrtc.addIceCandidate(candidate);
     });
 
-    socket!.on('webrtc:ice-candidate', (data) {
-      print('🧊 ICE Candidate received');
-    });
-
-    socket!.on('call:ended', (data) {
-      print('☎️ Call ended');
+    socket!.on('call:ended', (_) async {
+      _currentCallId = null;
+      await _webrtc.dispose();
     });
 
     socket!.connect();
