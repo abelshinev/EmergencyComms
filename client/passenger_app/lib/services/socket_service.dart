@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+import 'package:passenger_app/app/app.dart';
+import 'package:passenger_app/screens/call_screen.dart';
 import 'webrtc_service.dart';
 
 class SocketService {
@@ -21,10 +24,14 @@ class SocketService {
   void initiateCall({
     required String agentId,
     required String deviceId,
+    required String stationId,
+    required String block,
   }) {
     socket?.emit('call:initiate', {
       'targetAgentId': agentId,
       'deviceId': deviceId,
+      'stationId': stationId,
+      'block': block,
     });
   }
 
@@ -43,7 +50,10 @@ class SocketService {
 
     socket!.onConnect((_) {
       print('✅ Socket connected');
-      if (!completer.isCompleted) completer.complete();
+
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
     });
 
     socket!.onDisconnect((_) {
@@ -63,6 +73,13 @@ class SocketService {
       print('✅ Call accepted');
 
       _currentCallId = data['callId'];
+
+      Navigator.push(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(
+          builder: (_) => const CallScreen(),
+        ),
+      );
 
       await _webrtc.initialize();
 
@@ -108,13 +125,33 @@ class SocketService {
     });
 
     socket!.on('call:ended', (_) async {
+      print('☎️ Call ended');
+
       _currentCallId = null;
+
       await _webrtc.dispose();
+
+      Navigator.of(
+        navigatorKey.currentContext!,
+      ).popUntil((route) => route.isFirst);
     });
 
     socket!.connect();
 
     return completer.future;
+  }
+
+  // ---------------------------
+  // HANG UP CURRENT CALL
+  // ---------------------------
+  void endCurrentCall() {
+    if (_currentCallId == null) return;
+
+    socket?.emit('call:end', {
+      'callId': _currentCallId,
+    });
+
+    _currentCallId = null;
   }
 
   void disconnect() {

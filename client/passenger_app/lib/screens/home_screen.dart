@@ -29,12 +29,14 @@ class _HomeScreenState extends State<HomeScreen> {
       print(response);
 
       final agentId = response["agent"]["agentId"];
+      final stationId = response["stationId"];
+      final block = response["block"];
 
       final socket = SocketService();
 
       await socket.connect();
       
-      socket.initiateCall(agentId: agentId, deviceId: _controller.text);
+      socket.initiateCall(agentId: agentId, deviceId: _controller.text, stationId: stationId, block: block);
 
       setState(() {
         _status = 'Connected to ${response["agent"]["agentId"]}';

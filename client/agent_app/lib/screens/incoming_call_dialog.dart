@@ -12,15 +12,36 @@ class IncomingCallDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("Emergency Alert"),
+      title: const Text("🚨 Emergency Alert"),
 
       content: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Device: ${call["deviceId"]}"),
+          Text(
+            "Station: ${call["stationId"]}",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
           const SizedBox(height: 8),
+
+          Text(
+            "Block: ${call["block"]}",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Text("Device: ${call["deviceId"]}"),
+
+          const SizedBox(height: 16),
+
           const Text(
-            "Passenger is requesting assistance.",
+            "Passenger requesting emergency assistance.",
           ),
         ],
       ),

@@ -1,9 +1,10 @@
 import 'package:agent_app/app/app.dart';
 import 'package:agent_app/screens/incoming_call_dialog.dart';
 import 'package:agent_app/services/webrtc_service.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:flutter/material.dart';
+import 'package:agent_app/screens/call_screen.dart';
 
 class SocketService {
   static final SocketService _instance = SocketService._internal();
@@ -24,7 +25,7 @@ class SocketService {
     }
 
     socket = IO.io(
-      'http://172.17.76.30:3000',
+      'http://172.17.76.36:3000',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
@@ -72,6 +73,17 @@ class SocketService {
       final callId = data['callId'];
       _currentCallId = callId;
 
+      Navigator.push(
+        navigatorKey.currentContext!,
+        MaterialPageRoute(
+          builder: (_) => CallScreen(
+            stationId: data["stationId"] ?? "",
+            block: data["block"] ?? "",
+            deviceId: data["deviceId"] ?? "",
+          ),
+        ),
+      );
+
       await _webrtc.initialize();
 
       await _webrtc.setRemoteDescription(
@@ -81,7 +93,6 @@ class SocketService {
         ),
       );
 
-      // Send ICE candidates to passenger
       _webrtc.onIceCandidate((candidate) {
         socket?.emit('webrtc:ice-candidate', {
           'callId': callId,
@@ -104,12 +115,10 @@ class SocketService {
       print('📡 Answer sent');
     });
 
-    // Agent should never receive an answer
-    socket!.on('webrtc:answer', (data) {
+    socket!.on('webrtc:answer', (_) {
       print('⚠️ Unexpected Answer received');
     });
 
-    // Receive ICE candidate
     socket!.on('webrtc:ice-candidate', (data) async {
       print('🧊 ICE Candidate received');
 
@@ -124,12 +133,19 @@ class SocketService {
       print('🧊 Agent ICE Added');
     });
 
-    socket!.on('call:ended', (data) async {
+    // ==========================
+    // Call Ended
+    // ==========================
+    socket!.on('call:ended', (_) async {
       print('☎️ Call ended');
 
       _currentCallId = null;
 
       await _webrtc.dispose();
+
+      Navigator.of(
+        navigatorKey.currentContext!,
+      ).popUntil((route) => route.isFirst);
     });
 
     socket!.onDisconnect((_) {
@@ -140,10 +156,12 @@ class SocketService {
       print('Socket error: $error');
     });
 
-    // ACTUALLY CONNECT
     socket!.connect();
   }
 
+  // ==========================
+  // Accept Call
+  // ==========================
   void acceptCurrentCall() {
     if (_currentCallId == null) return;
 
@@ -152,10 +170,24 @@ class SocketService {
     });
   }
 
+  // ==========================
+  // Reject Call
+  // ==========================
   void rejectCurrentCall() {
     if (_currentCallId == null) return;
 
     socket?.emit('call:rejected', {
+      'callId': _currentCallId,
+    });
+  }
+
+  // ==========================
+  // Hang Up Call
+  // ==========================
+  void endCurrentCall() {
+    if (_currentCallId == null) return;
+
+    socket?.emit('call:end', {
       'callId': _currentCallId,
     });
   }

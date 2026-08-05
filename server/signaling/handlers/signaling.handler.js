@@ -29,7 +29,7 @@ function registerSignalingHandlers(io, socket) {
 
   // Passenger initiates emergency alert
   socket.on('call:initiate', async (data) => {
-    const { targetAgentId, deviceId } = data || {};
+    const { targetAgentId, deviceId, stationId, block } = data || {};
 
     logger.info(
       `[Socket ${socket.id}] call:initiate towards ${targetAgentId} (device: ${deviceId})`
@@ -64,6 +64,8 @@ function registerSignalingHandlers(io, socket) {
       agentSocketId,
       deviceId,
       targetAgentId,
+      stationId,
+      block,
     });
 
     logger.info(
@@ -74,6 +76,8 @@ function registerSignalingHandlers(io, socket) {
     io.to(agentSocketId).emit('call:incoming', {
       callId: call.callId,
       deviceId,
+      stationId,
+      block,
       targetAgentId,
       timestamp: new Date().toISOString(),
     });
