@@ -6,9 +6,12 @@ class CallScreen extends StatelessWidget {
   final String block;
   final String deviceId;
 
-  const CallScreen({super.key,     required this.stationId,
+  const CallScreen({
+    super.key,
+    required this.stationId,
     required this.block,
-    required this.deviceId,});
+    required this.deviceId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +28,7 @@ class CallScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
             const Icon(
               Icons.support_agent,
               size: 120,
@@ -38,6 +42,7 @@ class CallScreen extends StatelessWidget {
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 30,
+                fontWeight: FontWeight.bold,
               ),
             ),
 
@@ -51,13 +56,13 @@ class CallScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
 
             Text(
               "Station: $stationId",
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -83,6 +88,20 @@ class CallScreen extends StatelessWidget {
             ),
 
             const Spacer(),
+
+            Padding(
+              padding: const EdgeInsets.only(bottom: 40),
+              child: FloatingActionButton(
+                backgroundColor: Colors.red,
+                child: const Icon(Icons.call_end),
+
+                onPressed: () {
+                  SocketService().endCurrentCall();
+
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
           ],
         ),
       ),
